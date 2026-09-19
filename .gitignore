@@ -28,3 +28,10 @@ frontend/.vite/
 Thumbs.db
 .idea/
 .vscode/
+# Catch db files anywhere, not just backend/database/
+*.db
+*.sqlite3
+
+# In case build output isn't always under frontend/
+dist/
+build/
