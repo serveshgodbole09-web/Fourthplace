@@ -1,0 +1,127 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #f4eee3;
+  --ink: #234234;
+  --paper: #e9e1d2;
+  --accent: #78a486;
+  cursor: auto;
+}
+
+.dark {
+  --bg: #20372b;
+  --ink: #f4eee3;
+  --paper: #2d4939;
+  --accent: #a9c8a5;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Sora", system-ui, sans-serif;
+}
+
+.grain {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  opacity: 0.09;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.dark .grain {
+  mix-blend-mode: overlay;
+  opacity: 0.18;
+}
+
+.ink-underline {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0 1.5px;
+  transition: background-size 0.4s ease;
+}
+
+.ink-underline:hover {
+  background-size: 100% 1.5px;
+}
+
+.paper-card {
+  background: color-mix(in srgb, var(--paper) 92%, white);
+  box-shadow: 0 20px 50px -28px rgba(35, 66, 52, 0.34);
+}
+
+.dark .paper-card {
+  background: #2d4939;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.ink-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.ink-btn::after {
+  content: "";
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0;
+  transform: scale(1);
+  pointer-events: none;
+}
+
+.ink-btn:active::after {
+  animation: ink-ripple 0.55s ease-out;
+}
+
+@keyframes ink-ripple {
+  from {
+    opacity: 0.28;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(28);
+  }
+}
+
+.cursor-dot {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #78a486;
+  pointer-events: none;
+  z-index: 90;
+  mix-blend-mode: multiply;
+  transform: translate(-50%, -50%);
+}
+
+.dark .cursor-dot {
+  mix-blend-mode: screen;
+}

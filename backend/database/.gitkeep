@@ -1,0 +1,4 @@
+# SQLite database file is created here at runtime:
+#   backend/database/fourth_place.db
+# Run `python database/seed.py` from the backend working directory
+# (or `python ../database/seed.py` after `cd backend`).
