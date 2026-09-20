@@ -24,39 +24,79 @@ export default function Layout({ night }) {
       <div className="min-h-screen bg-cream text-ink dark:bg-[#20372b] dark:text-[#f4eee3] transition-colors">
         <div className="grain" />
         <header className="sticky top-0 z-40 backdrop-blur-md bg-cream/75 dark:bg-[#20372b]/80 border-b border-ink/10">
-          <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-            <Link to="/" className="flex items-center" aria-label="Fourth Place home">
-              <img
-                src={`/assets/fourthplace-logo-${night ? "night" : "day"}.png`}
-                alt="Fourth Place"
-                className="h-12 w-auto max-w-[190px] object-contain"
-              />
-            </Link>
-            <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs sm:text-sm">
-              {links.map(([to, label]) => (
-                <NavLink key={to} to={to} className="ink-underline" end={to === "/"}>
-                  {label}
-                </NavLink>
-              ))}
-            </nav>
-            <div className="flex items-center gap-3">
-              {customer ? (
-                <div className="flex items-center gap-2 text-xs">
-                  <Link to="/wallet" className="ink-underline">
-                    Wallet
-                  </Link>
-                  <button type="button" onClick={logoutCustomer}>
-                    Sign out
-                  </button>
-                </div>
-              ) : (
-                <Link to="/register" className="text-xs uppercase tracking-widest">
-                  Become a regular
-                </Link>
-              )}
-              <Link to="/admin/login" className="text-[10px] uppercase tracking-widest opacity-50">
-                Staff
+          <div className="max-w-6xl mx-auto px-2.5 py-2.5 sm:px-4 sm:py-4">
+            <div className="flex items-center justify-between gap-2 sm:gap-3">
+              <Link to="/" className="flex items-center shrink-0" aria-label="Fourth Place home">
+                <img
+                  src={`/assets/fourthplace-logo-${night ? "night" : "day"}.png`}
+                  alt="Fourth Place"
+                  className="h-8 w-auto max-w-[110px] object-contain sm:h-10 sm:max-w-[150px] md:h-12 md:max-w-[190px]"
+                />
               </Link>
+
+              <nav className="hidden md:flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs sm:text-sm">
+                {links.map(([to, label]) => (
+                  <NavLink key={to} to={to} className="ink-underline" end={to === "/"}>
+                    {label}
+                  </NavLink>
+                ))}
+              </nav>
+
+              <div className="hidden md:flex items-center gap-3">
+                {customer ? (
+                  <div className="flex items-center gap-2 text-xs">
+                    <Link to="/wallet" className="ink-underline">
+                      Wallet
+                    </Link>
+                    <button type="button" onClick={logoutCustomer}>
+                      Sign out
+                    </button>
+                  </div>
+                ) : (
+                  <Link to="/register" className="text-xs uppercase tracking-widest">
+                    Become a regular
+                  </Link>
+                )}
+                <Link to="/admin/login" className="text-[10px] uppercase tracking-widest opacity-50">
+                  Staff
+                </Link>
+              </div>
+
+              <button
+                type="button"
+                aria-label="Open menu"
+                aria-expanded={open}
+                onClick={() => setOpen((value) => !value)}
+                className="md:hidden inline-flex items-center justify-center rounded-full border border-current/15 bg-[#f7f1e9]/80 px-2.5 py-2 text-ink shadow-sm dark:bg-[#2d4939]/80 dark:text-[#f4eee3]"
+              >
+                <span className="sr-only">Menu</span>
+                <span className="flex flex-col gap-1.5">
+                  <span className="block h-0.5 w-5 rounded-full bg-current" />
+                  <span className="block h-0.5 w-5 rounded-full bg-current" />
+                  <span className="block h-0.5 w-5 rounded-full bg-current" />
+                </span>
+              </button>
+            </div>
+
+            <div className="md:hidden mt-2 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none]">
+              <div className="flex min-w-max items-center gap-1.5 pb-0.5">
+                {links.map(([to, label]) => (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    end={to === "/"}
+                    className={({ isActive }) =>
+                      `rounded-full border px-2.5 py-1 text-[9px] uppercase tracking-[0.14em] whitespace-nowrap transition-colors ${
+                        isActive
+                          ? "border-ink bg-ink text-cream dark:border-[#f4eee3] dark:bg-[#f4eee3] dark:text-[#20372b]"
+                          : "border-current/10 bg-[#f7f1e9]/60 text-ink/70 dark:bg-[#2d4939]/80 dark:text-[#f4eee3]/80"
+                      }`
+                    }
+                  >
+                    {label}
+                  </NavLink>
+                ))}
+              </div>
             </div>
           </div>
           <AnimatePresence>
@@ -65,18 +105,24 @@ export default function Layout({ night }) {
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                className="md:hidden overflow-hidden px-4 pb-4 flex flex-col gap-3"
+                className="md:hidden overflow-hidden border-t border-ink/10 bg-cream/90 px-4 pb-4 pt-3 dark:bg-[#20372b]/95"
               >
-                {links.map(([to, label]) => (
-                  <NavLink key={to} to={to}>
-                    {label}
-                  </NavLink>
-                ))}
-                <Link to="/register">Register</Link>
-                <Link to="/wallet">Wallet</Link>
-                <Link to="/admin/login" className="opacity-60">
-                  Staff
-                </Link>
+                <div className="flex flex-col gap-2.5 text-sm">
+                  {links.map(([to, label]) => (
+                    <NavLink key={to} to={to} className="rounded-full border border-current/10 px-3 py-2">
+                      {label}
+                    </NavLink>
+                  ))}
+                  <Link to="/register" className="rounded-full border border-current/10 px-3 py-2">
+                    Register
+                  </Link>
+                  <Link to="/wallet" className="rounded-full border border-current/10 px-3 py-2">
+                    Wallet
+                  </Link>
+                  <Link to="/admin/login" className="rounded-full border border-current/10 px-3 py-2 opacity-60">
+                    Staff
+                  </Link>
+                </div>
               </motion.nav>
             )}
           </AnimatePresence>
