@@ -17,7 +17,7 @@ export default function Menu() {
   const menuUrl = typeof window !== "undefined" ? `${window.location.origin}/menu` : "/menu";
 
   useEffect(() => {
-    api("/menu").then(setItems).catch(() => setItems([]));
+    api("/api/menu").then(setItems).catch(() => setItems([]));
   }, []);
 
   const filtered = items.filter((i) => tab === "all" || i.category === tab);

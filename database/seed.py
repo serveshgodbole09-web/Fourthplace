@@ -379,6 +379,8 @@ def seed():
         for item in MENU:
             db.add(MenuItem(**item, is_available=True))
 
+        attach_uploaded_menu_images(db)
+
         if db.query(GalleryImage).count() == 0:
             for img in GALLERY:
                 db.add(GalleryImage(**img))

@@ -35,7 +35,7 @@ def _birthday_email_html(customer_name: str, coupon_code: str) -> str:
 
       <p>With love,<br>
       <strong>Fourth Place Art Café</strong> ♥️</p>
-    </div>
+    </div> 
     </body></html>"""
 
 

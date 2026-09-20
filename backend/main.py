@@ -1,4 +1,5 @@
 import logging
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -11,10 +12,12 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
+from auth import hash_password
 from config import get_settings
 from database import Base, SessionLocal, engine, ensure_schema
 from limiter import limiter
-from routers import admin, auth, customers, feedback, menu, offers, public, spinwheel
+from models import Admin
+from routers import admin, auth as auth_router, customers, feedback, menu, offers, public, spinwheel
 from routers.offers import process_due_offers
 from services.birthday import send_birthday_perks
 
@@ -25,7 +28,6 @@ scheduler = BackgroundScheduler()
 UPLOAD_DIR = Path(__file__).resolve().parent / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-# --- NEW: path to the built frontend ---
 FRONTEND_DIST = Path(__file__).resolve().parent.parent / "frontend" / "dist"
 
 
@@ -40,10 +42,36 @@ def scheduled_jobs():
         db.close()
 
 
+# --- NEW: creates the admin account from env vars if none exists yet ---
+def ensure_admin_exists():
+    admin_email = os.environ.get("ADMIN_EMAIL")
+    admin_password = os.environ.get("ADMIN_PASSWORD")
+    if not admin_email or not admin_password:
+        logger.warning("ADMIN_EMAIL or ADMIN_PASSWORD not set — skipping admin seed.")
+        return
+
+    db = SessionLocal()
+    try:
+        existing = db.query(Admin).filter(Admin.email == admin_email).first()
+        if existing:
+            logger.info("Admin already exists: %s", admin_email)
+            return
+        new_admin = Admin(email=admin_email, hashed_password=hash_password(admin_password))
+        db.add(new_admin)
+        db.commit()
+        logger.info("Created admin account: %s", admin_email)
+    except Exception:
+        logger.exception("Failed to seed admin account")
+        db.rollback()
+    finally:
+        db.close()
+
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     Base.metadata.create_all(bind=engine)
     ensure_schema()
+    ensure_admin_exists()  # --- NEW ---
     scheduler.add_job(scheduled_jobs, "interval", minutes=15, id="fourthplace-jobs")
     scheduler.start()
     scheduled_jobs()
@@ -71,7 +99,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth.router)
+app.include_router(auth_router.router)
 app.include_router(customers.router)
 app.include_router(feedback.router)
 app.include_router(menu.router)
@@ -87,13 +115,11 @@ def health():
     return {"status": "warm"}
 
 
-# --- NEW: serve the built React frontend (must stay at the very bottom) ---
 if FRONTEND_DIST.exists():
     app.mount("/assets", StaticFiles(directory=FRONTEND_DIST / "assets"), name="frontend-assets")
 
     @app.get("/{full_path:path}")
     async def serve_frontend(full_path: str):
-        # Never swallow API routes — let them 404 normally if unmatched above
         if full_path.startswith(("uploads/", "api/", "health")):
             return JSONResponse(status_code=404, content={"detail": "Not found"})
         return FileResponse(FRONTEND_DIST / "index.html")

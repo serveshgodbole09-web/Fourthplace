@@ -6,7 +6,7 @@ from database import get_db
 from models import MenuItem
 from schemas import MenuItemIn, MenuItemOut
 
-router = APIRouter(prefix="/menu", tags=["menu"])
+router = APIRouter(prefix="/api/menu", tags=["menu"])
 
 
 @router.get("", response_model=list[MenuItemOut])

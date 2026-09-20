@@ -501,7 +501,7 @@ function MenuAdmin() {
   const [msg, setMsg] = useState("");
 
   function load() {
-    api("/menu/all", authOpts()).then(setRows).catch((e) => setErr(e.message));
+    api("/api/menu/all", authOpts()).then(setRows).catch((e) => setErr(e.message));
   }
   useEffect(load, []);
 
@@ -513,8 +513,8 @@ function MenuAdmin() {
       if (!imageUrl) throw new Error("Choose an image first");
       const body = { ...form, image_url: imageUrl, price: Number(form.price), sort_order: Number(form.sort_order) || 0 };
       delete body.image_file;
-      if (editing) await api(`/menu/${editing}`, { method: "PUT", body, ...authOpts() });
-      else await api("/menu", { method: "POST", body, ...authOpts() });
+      if (editing) await api(`/api/menu/${editing}`, { method: "PUT", body, ...authOpts() });
+      else await api("/api/menu", { method: "POST", body, ...authOpts() });
       setForm(emptyMenu);
       setEditing(null);
       setMsg("Menu saved.");
@@ -525,7 +525,7 @@ function MenuAdmin() {
   }
 
   async function remove(id) {
-    await api(`/menu/${id}`, { method: "DELETE", ...authOpts() });
+    await api(`/api/menu/${id}`, { method: "DELETE", ...authOpts() });
     load();
   }
 
