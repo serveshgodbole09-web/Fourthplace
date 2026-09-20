@@ -118,7 +118,7 @@ export default function Layout({ night }) {
               <div>
                 <p className="text-xs uppercase tracking-[0.35em] text-terracotta font-medium">Visit</p>
                 <div className="mt-6 space-y-4 text-base text-[#f4eee3]/90">
-                  <p>Fourth Place</p>
+                  <p>Fourth Place Art cafe</p>
                   <p>Shaniwar Peth, Rajmachi, Guruwar Peth</p>
                   <p>Satara, Maharashtra 415001</p>
                 </div>

@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from starlette.requests import Request
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from config import get_settings
@@ -24,6 +24,9 @@ settings = get_settings()
 scheduler = BackgroundScheduler()
 UPLOAD_DIR = Path(__file__).resolve().parent / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+# --- NEW: path to the built frontend ---
+FRONTEND_DIST = Path(__file__).resolve().parent.parent / "frontend" / "dist"
 
 
 def scheduled_jobs():
@@ -82,3 +85,15 @@ app.include_router(public.wallet)
 @app.get("/health")
 def health():
     return {"status": "warm"}
+
+
+# --- NEW: serve the built React frontend (must stay at the very bottom) ---
+if FRONTEND_DIST.exists():
+    app.mount("/assets", StaticFiles(directory=FRONTEND_DIST / "assets"), name="frontend-assets")
+
+    @app.get("/{full_path:path}")
+    async def serve_frontend(full_path: str):
+        # Never swallow API routes — let them 404 normally if unmatched above
+        if full_path.startswith(("uploads/", "api/", "health")):
+            return JSONResponse(status_code=404, content={"detail": "Not found"})
+        return FileResponse(FRONTEND_DIST / "index.html")

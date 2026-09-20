@@ -27,7 +27,7 @@ def _birthday_email_html(customer_name: str, coupon_code: str) -> str:
       <p>As a little birthday treat from<br>
       our café to you... 💚</p>
 
-      <p style="font-size:18px;font-weight:bold;">🎁 Enjoy a FREE Coffee ☕ + Fries 🍟 on us!</p>
+      <p style="font-size:18px;font-weight:bold;">🎁 Enjoy a FREE Coffee ☕ + ArtKit 🎨 on us!</p>
       <p>Here's your coupon code: <strong>{coupon_code}</strong></p>
 
       <p>Here's to good food, great art,<br>

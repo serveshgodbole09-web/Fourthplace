@@ -1,4 +1,4 @@
-const BASE = import.meta.env.VITE_API_URL || "/api";
+const BASE = import.meta.env.VITE_API_URL || "";
 
 function token(role) {
   return localStorage.getItem(role === "admin" ? "fp_admin_token" : "fp_customer_token");
