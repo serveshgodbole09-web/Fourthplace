@@ -42,6 +42,7 @@ async def upload_image(file: UploadFile = File(...), _admin=Depends(get_current_
             upload_url,
             content=content,
             headers={
+                "apiKey": SUPABASE_SERVICE_ROLE_KEY,
                 "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
                 "Content-Type": file.content_type,
             },
