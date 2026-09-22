@@ -1,6 +1,7 @@
+import httpx
+import os
 from collections import defaultdict
 from datetime import datetime, timedelta
-from pathlib import Path
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
@@ -14,9 +15,12 @@ from schemas import AnalyticsOut, ArtistOut, CouponOut, CustomerOut, FeedbackOut
 from services.birthday import send_birthday_email_to_customer, send_birthday_perks
 
 router = APIRouter(prefix="/admin", tags=["admin"])
-UPLOAD_DIR = Path(__file__).resolve().parent.parent / "uploads"
 ALLOWED_IMAGE_TYPES = {"image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp", "image/gif": ".gif"}
 MAX_IMAGE_BYTES = 5 * 1024 * 1024
+
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
+SUPABASE_SERVICE_ROLE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
+SUPABASE_BUCKET = "fourthplace-uploads"
 
 
 @router.post("/upload")
@@ -27,10 +31,26 @@ async def upload_image(file: UploadFile = File(...), _admin=Depends(get_current_
     content = await file.read(MAX_IMAGE_BYTES + 1)
     if len(content) > MAX_IMAGE_BYTES:
         raise HTTPException(status_code=413, detail="Image must be 5 MB or smaller")
-    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    if not SUPABASE_URL or not SUPABASE_SERVICE_ROLE_KEY:
+        raise HTTPException(status_code=500, detail="Image storage is not configured")
+
     filename = f"{uuid4().hex}{extension}"
-    (UPLOAD_DIR / filename).write_bytes(content)
-    return {"url": f"/api/uploads/{filename}", "filename": filename}
+    upload_url = f"{SUPABASE_URL}/storage/v1/object/{SUPABASE_BUCKET}/{filename}"
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            upload_url,
+            content=content,
+            headers={
+                "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
+                "Content-Type": file.content_type,
+            },
+        )
+    if response.status_code not in (200, 201):
+        raise HTTPException(status_code=502, detail=f"Image upload failed: {response.text}")
+
+    public_url = f"{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_BUCKET}/{filename}"
+    return {"url": public_url, "filename": filename}
 
 
 @router.get("/customers", response_model=list[CustomerOut])
