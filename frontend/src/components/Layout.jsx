@@ -14,10 +14,12 @@ const links = [
 
 export default function Layout({ night }) {
   const { customer, logoutCustomer } = useAuth();
-  const [open, setOpen] = useState(false);
   const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  useEffect(() => setOpen(false), [location.pathname]);
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
 
   return (
     <div className={night ? "dark" : ""}>
@@ -30,7 +32,7 @@ export default function Layout({ night }) {
                 <img
                   src={`/assets/fourthplace-logo-${night ? "night" : "day"}.png`}
                   alt="Fourth Place"
-                  className="h-8 w-auto max-w-[110px] object-contain sm:h-10 sm:max-w-[150px] md:h-12 md:max-w-[190px]"
+                  className="h-10 w-auto max-w-[120px] object-contain sm:h-12 sm:max-w-[160px] md:h-14 md:max-w-[210px]"
                 />
               </Link>
 
@@ -64,68 +66,43 @@ export default function Layout({ night }) {
 
               <button
                 type="button"
-                aria-label="Open menu"
-                aria-expanded={open}
-                onClick={() => setOpen((value) => !value)}
-                className="md:hidden inline-flex items-center justify-center rounded-full border border-current/15 bg-[#f7f1e9]/80 px-2.5 py-2 text-ink shadow-sm dark:bg-[#2d4939]/80 dark:text-[#f4eee3]"
+                className="md:hidden ml-auto flex h-8 w-8 items-center justify-center bg-transparent p-0 text-ink transition-colors dark:text-[#f4eee3]"
+                onClick={() => setMobileMenuOpen((open) => !open)}
+                aria-label="Toggle page menu"
+                aria-expanded={mobileMenuOpen}
               >
-                <span className="sr-only">Menu</span>
-                <span className="flex flex-col gap-1.5">
-                  <span className="block h-0.5 w-5 rounded-full bg-current" />
-                  <span className="block h-0.5 w-5 rounded-full bg-current" />
-                  <span className="block h-0.5 w-5 rounded-full bg-current" />
+                <span className="flex flex-col items-center justify-center gap-[4px]">
+                  <span className="block h-[1.5px] w-5 bg-current" />
+                  <span className="block h-[1.5px] w-5 bg-current" />
+                  <span className="block h-[1.5px] w-5 bg-current" />
                 </span>
               </button>
             </div>
 
-            <div className="md:hidden mt-2 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none]">
-              <div className="flex min-w-max items-center gap-1.5 pb-0.5">
-                {links.map(([to, label]) => (
-                  <NavLink
-                    key={to}
-                    to={to}
-                    end={to === "/"}
-                    className={({ isActive }) =>
-                      `rounded-full border px-2.5 py-1 text-[9px] uppercase tracking-[0.14em] whitespace-nowrap transition-colors ${
-                        isActive
-                          ? "border-ink bg-ink text-cream dark:border-[#f4eee3] dark:bg-[#f4eee3] dark:text-[#20372b]"
-                          : "border-current/10 bg-[#f7f1e9]/60 text-ink/70 dark:bg-[#2d4939]/80 dark:text-[#f4eee3]/80"
-                      }`
-                    }
-                  >
-                    {label}
-                  </NavLink>
-                ))}
-              </div>
-            </div>
-          </div>
-          <AnimatePresence>
-            {open && (
-              <motion.nav
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="md:hidden overflow-hidden border-t border-ink/10 bg-cream/90 px-4 pb-4 pt-3 dark:bg-[#20372b]/95"
-              >
-                <div className="flex flex-col gap-2.5 text-sm">
+            {mobileMenuOpen && (
+              <div className="md:hidden mt-2 rounded-2xl border border-current/10 bg-[#f7f1e9]/70 p-2 shadow-sm dark:bg-[#2d4939]/80">
+                <div className="max-h-52 overflow-y-auto space-y-1.5">
                   {links.map(([to, label]) => (
-                    <NavLink key={to} to={to} className="rounded-full border border-current/10 px-3 py-2">
+                    <NavLink
+                      key={to}
+                      to={to}
+                      end={to === "/"}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={({ isActive }) =>
+                        `block rounded-xl px-3 py-2 text-[10px] font-medium uppercase tracking-[0.18em] transition-colors ${
+                          isActive
+                            ? "bg-ink text-cream dark:bg-[#f4eee3] dark:text-[#20372b]"
+                            : "text-ink/75 hover:bg-black/5 dark:text-[#f4eee3]/80 dark:hover:bg-white/5"
+                        }`
+                      }
+                    >
                       {label}
                     </NavLink>
                   ))}
-                  <Link to="/register" className="rounded-full border border-current/10 px-3 py-2">
-                    Register
-                  </Link>
-                  <Link to="/wallet" className="rounded-full border border-current/10 px-3 py-2">
-                    Wallet
-                  </Link>
-                  <Link to="/admin/login" className="rounded-full border border-current/10 px-3 py-2 opacity-60">
-                    Staff
-                  </Link>
                 </div>
-              </motion.nav>
+              </div>
             )}
-          </AnimatePresence>
+          </div>
         </header>
         <main>
           <Outlet />
