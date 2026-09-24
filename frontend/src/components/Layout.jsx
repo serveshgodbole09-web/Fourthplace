@@ -99,6 +99,37 @@ export default function Layout({ night }) {
                       {label}
                     </NavLink>
                   ))}
+
+                  <div className="mt-2 border-t border-current/10 pt-2">
+                    <Link
+                      to="/wallet"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block rounded-xl px-3 py-2 text-[10px] font-medium uppercase tracking-[0.18em] text-ink/75 hover:bg-black/5 dark:text-[#f4eee3]/80 dark:hover:bg-white/5"
+                    >
+                      Wallet
+                    </Link>
+
+                    {customer ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          logoutCustomer();
+                          setMobileMenuOpen(false);
+                        }}
+                        className="block w-full rounded-xl px-3 py-2 text-left text-[10px] font-medium uppercase tracking-[0.18em] text-ink/75 hover:bg-black/5 dark:text-[#f4eee3]/80 dark:hover:bg-white/5"
+                      >
+                        Sign out
+                      </button>
+                    ) : (
+                      <Link
+                        to="/admin/login"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block rounded-xl px-3 py-2 text-[10px] font-medium uppercase tracking-[0.18em] text-ink/75 hover:bg-black/5 dark:text-[#f4eee3]/80 dark:hover:bg-white/5"
+                      >
+                        Staff
+                      </Link>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
