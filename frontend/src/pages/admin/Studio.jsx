@@ -389,7 +389,7 @@ function Offers() {
   async function launch(id) {
     setMsg("");
     try {
-      await api(`/offers/${id}/launch`, { method: "POST", ...authOpts() });
+      await api(`/offers/${id}/launch`, { method: "POST", auth: true, role: "admin" });
       setMsg("Email batch finished. Check the recipient inboxes.");
       load();
     } catch (ex) {

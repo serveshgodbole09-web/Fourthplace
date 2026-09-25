@@ -1,4 +1,5 @@
 from datetime import datetime
+import traceback
 
 from sqlalchemy.orm import Session
 
@@ -21,19 +22,29 @@ def _offer_email_html(offer_title: str, offer_description: str, offer_discount: 
 
 
 def launch_offer(db: Session, offer: Offer) -> Offer:
-    customers = db.query(Customer).all()
-    recipients = [c.email.strip() for c in customers if c.email and c.email.strip() and (c.newsletter_opt_in is True or c.newsletter_opt_in is None)]
-    text_body = (
-        f"Fourth Place — {offer.title}: {offer.description} "
-        f"({offer.discount}). Show this email in the café."
-    )
-    html_body = _offer_email_html(offer.title, offer.description, offer.discount)
-    sent, failed = send_email_batch(recipients, f"Fourth Place offer: {offer.title}", text_body, html_body) if recipients else (0, 0)
-    offer.emails_sent = sent
-    offer.emails_failed = failed
-    offer.status = "sent"
-    offer.sent_at = datetime.utcnow()
-    db.add(offer)
-    db.commit()
-    db.refresh(offer)
-    return offer
+    print(f"[DEBUG services/offers] launch_offer start: offer_id={offer.id}, title={offer.title!r}", flush=True)
+    try:
+        customers = db.query(Customer).all()
+        recipients = [c.email.strip() for c in customers if c.email and c.email.strip() and (c.newsletter_opt_in is True or c.newsletter_opt_in is None)]
+        print(f"[DEBUG services/offers] recipient_count={len(recipients)}", flush=True)
+        text_body = (
+            f"Fourth Place — {offer.title}: {offer.description} "
+            f"({offer.discount}). Show this email in the café."
+        )
+        html_body = _offer_email_html(offer.title, offer.description, offer.discount)
+        print("[DEBUG services/offers] calling send_email_batch()", flush=True)
+        sent, failed = send_email_batch(recipients, f"Fourth Place offer: {offer.title}", text_body, html_body) if recipients else (0, 0)
+        print(f"[DEBUG services/offers] send_email_batch returned: sent={sent}, failed={failed}", flush=True)
+        offer.emails_sent = sent
+        offer.emails_failed = failed
+        offer.status = "sent"
+        offer.sent_at = datetime.utcnow()
+        db.add(offer)
+        db.commit()
+        db.refresh(offer)
+        print(f"[DEBUG services/offers] launch_offer finished: offer_id={offer.id}, status={offer.status}, emails_sent={offer.emails_sent}, emails_failed={offer.emails_failed}", flush=True)
+        return offer
+    except Exception:
+        print("[DEBUG services/offers] launch_offer EXCEPTION")
+        traceback.print_exc()
+        raise

@@ -49,11 +49,15 @@ def get_current_admin(
     db: Session = Depends(get_db),
 ) -> Admin:
     payload = _credentials(creds)
+    print(f"[DEBUG auth] get_current_admin payload: {payload}", flush=True)
     if payload.get("role") != "admin":
+        print("[DEBUG auth] role not admin", flush=True)
         raise HTTPException(status_code=403, detail="Admin access required")
     admin = db.query(Admin).filter(Admin.email == payload.get("sub")).first()
     if not admin:
+        print(f"[DEBUG auth] admin not found for email {payload.get('sub')}", flush=True)
         raise HTTPException(status_code=401, detail="Admin not found")
+    print(f"[DEBUG auth] admin resolved: {admin.email}", flush=True)
     return admin
 
 

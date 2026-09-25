@@ -4,7 +4,7 @@ function token(role) {
   return localStorage.getItem(role === "admin" ? "fp_admin_token" : "fp_customer_token");
 }
 
-export async function api(path, { method = "GET", body, role, auth = false } = {}) {
+export async function api(path, { method = "GET", body, role = "admin", auth = false } = {}) {
   const isForm = body instanceof FormData;
   const headers = isForm ? {} : { "Content-Type": "application/json" };
   if (auth) {
